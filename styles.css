@@ -2,92 +2,70 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: system-ui, sans-serif;
 }
 
 body {
-  height: 100svh;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: linear-gradient(
-    180deg,
-    #ffffff 0%,
-    #f7e6ec 45%,
-    #fff7ed 100%
-  );
+  height: 100vh;
+  background: #f4f6f8;
   overflow: hidden;
 }
 
-.hero {
-  width: 100%;
-  height: 100%;
-}
-
-.sphere-system {
+.system {
   position: relative;
-  width: 100%;
-  height: 100svh;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  touch-action: none;
 }
 
-/* ===== CENTER SPHERE ===== */
+/* Center Sphere */
 .center-sphere {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: clamp(260px, 70vw, 380px);
-  height: clamp(260px, 70vw, 380px);
+
+  width: min(380px, 75vw);
+  height: min(380px, 75vw);
+
   transform: translate(-50%, -50%);
   border-radius: 50%;
   background: rgba(255,255,255,0.97);
   box-shadow: 0 40px 100px rgba(0,0,0,0.08);
-  padding: 55px;
+
+  padding: clamp(24px, 5vw, 55px);
   text-align: center;
   z-index: 2;
-
-  /* 🚨 allow touches to pass through */
-  pointer-events: none;
 }
 
 .center-sphere h1 {
-  font-size: clamp(1.9rem, 5vw, 2.7rem);
-  color: #312e81;
+  font-size: clamp(22px, 5vw, 36px);
 }
 
-.subtitle {
+.center-sphere p {
   margin-top: 12px;
-  color: #6366f1;
-  font-size: clamp(0.85rem, 3vw, 1rem);
+  opacity: 0.7;
 }
 
-.intro {
-  margin-top: 20px;
-  color: #475569;
-  font-size: clamp(0.9rem, 3vw, 1rem);
-}
-
-/* ===== ORBIT CIRCLES ===== */
+/* Orbit Circles */
 .orbit {
   position: absolute;
-  width: clamp(64px, 18vw, 96px);
-  height: clamp(64px, 18vw, 96px);
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
-  background: white;
-  box-shadow: 0 18px 55px rgba(0,0,0,0.12);
+  background: #111;
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #4338ca;
-  font-weight: 500;
-  font-size: clamp(0.75rem, 3vw, 0.95rem);
-  cursor: grab;
+  font-size: 12px;
+  cursor: pointer;
+  transition: transform 0.08s linear;
   user-select: none;
-  z-index: 5;
-
-  /* REQUIRED FOR MOBILE DRAG */
-  touch-action: none;
-
-  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.orbit.dragging {
-  cursor: grabbing;
-  transition: none;
+.orbit:hover {
+  background: #333;
 }
