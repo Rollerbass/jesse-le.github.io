@@ -27,7 +27,8 @@ body {
   height: 100vh;
 }
 
-/* Center sphere */
+/* ===== CENTER SPHERE ===== */
+
 .center-sphere {
   position: absolute;
   top: 50%;
@@ -58,7 +59,8 @@ body {
   color: #475569;
 }
 
-/* Orbit circles */
+/* ===== ORBIT CIRCLES ===== */
+
 .orbit {
   position: absolute;
   width: 96px;
@@ -73,6 +75,10 @@ body {
   font-weight: 500;
   cursor: grab;
   user-select: none;
+
+  /* 🚨 REQUIRED FOR MOBILE */
+  touch-action: none;
+
   transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -81,5 +87,3 @@ body {
   transition: none;
   z-index: 3;
 }
-
-
