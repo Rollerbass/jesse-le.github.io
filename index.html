@@ -2,159 +2,77 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <title>Jesse-Le</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jesse-Le Edwards</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-<section class="hero">
-  <div class="sphere-system" id="system">
+  <div class="system" id="system">
 
+    <!-- Center Sphere -->
     <div class="center-sphere">
-      <h1>Jesse-Le<br>Edwards</h1>
-      <p class="subtitle">
-        IT • Customer Support • Systems • Creative Technologist
-      </p>
-      <p class="intro">
-        I help people work better with technology.<br>
-        Calm problem-solver. Curious builder.<br>
-        Human-centered thinker.
-      </p>
+      <h1>Jesse-Le</h1>
+      <p>Interactive Portfolio</p>
     </div>
 
-    <a class="orbit">About</a>
-    <a class="orbit">Projects</a>
-    <a class="orbit">GitHub</a>
-    <a class="orbit">LinkedIn</a>
-    <a class="orbit">Email</a>
-    <a class="orbit">Demo</a>
+    <!-- Orbiting Circles -->
+    <div class="orbit" data-angle="0">Home</div>
+    <div class="orbit" data-angle="90">Projects</div>
+    <div class="orbit" data-angle="180">Resume</div>
+    <div class="orbit" data-angle="270">Contact</div>
 
   </div>
-</section>
 
-<script>
-const system = document.getElementById("system");
-const orbits = [...document.querySelectorAll(".orbit")];
+  <script>
+    const system = document.getElementById("system");
+    const orbits = document.querySelectorAll(".orbit");
 
-const COUNT = orbits.length;
-const STEP = (Math.PI * 2) / COUNT;
+    let radius = 260;
 
-let rotation = 0;
-let active = null;
-let lastVector = null;
+    function minRadius() {
+      const center = document.querySelector(".center-sphere");
+      return center.offsetWidth / 2 + 14;
+    }
 
-let radius, MIN_RADIUS, MAX_RADIUS;
+    function maxRadius() {
+      return Math.min(system.offsetWidth, system.offsetHeight) / 2 - 30;
+    }
 
-/* ===== RESPONSIVE + SAFE RADIUS ===== */
-function getResponsiveRadius() {
-  const minDim = Math.min(window.innerWidth, window.innerHeight);
+    function positionOrbits() {
+      orbits.forEach(orbit => {
+        const angle = parseFloat(orbit.dataset.angle) * Math.PI / 180;
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
 
-  // Match CSS clamps
-  const centerSize = Math.min(Math.max(minDim * 0.7, 260), 380);
-  const orbitSize  = Math.min(Math.max(minDim * 0.18, 64), 96);
+        orbit.style.transform = `translate(${x}px, ${y}px)`;
+      });
+    }
 
-  const base = centerSize / 2 + orbitSize / 2 + 24;
+    positionOrbits();
+    window.addEventListener("resize", positionOrbits);
 
-  return {
-    radius: base + 40,
-    min: base + 10,
-    max: base + minDim * 0.15
-  };
-}
+    /* Drag to zoom orbit */
+    let startY = null;
 
-function updateRadius() {
-  const r = getResponsiveRadius();
-  radius = r.radius;
-  MIN_RADIUS = r.min;
-  MAX_RADIUS = r.max;
-}
+    system.addEventListener("pointerdown", e => {
+      startY = e.clientY;
+    });
 
-updateRadius();
+    system.addEventListener("pointermove", e => {
+      if (startY === null) return;
 
-/* ===== CENTER POINT ===== */
-function center() {
-  return {
-    x: system.offsetWidth / 2,
-    y: system.offsetHeight / 2
-  };
-}
+      const delta = startY - e.clientY;
+      radius += delta * 0.6;
 
-/* ===== LAYOUT ===== */
-function layout() {
-  const c = center();
-  orbits.forEach((orbit, i) => {
-    const angle = i * STEP + rotation;
-    const x = c.x + Math.cos(angle) * radius - orbit.offsetWidth / 2;
-    const y = c.y + Math.sin(angle) * radius - orbit.offsetHeight / 2;
-    orbit.style.transform = `translate(${x}px, ${y}px)`;
-  });
-}
+      radius = Math.max(minRadius(), Math.min(maxRadius(), radius));
+      startY = e.clientY;
 
-/* ===== POINTER EVENTS ===== */
-orbits.forEach(orbit => {
-  orbit.addEventListener("pointerdown", e => {
-    active = orbit;
-    orbit.classList.add("dragging");
-    orbit.setPointerCapture(e.pointerId);
+      positionOrbits();
+    });
 
-    const c = center();
-    lastVector = {
-      x: e.clientX - c.x,
-      y: e.clientY - c.y
-    };
-  });
-});
-
-document.addEventListener("pointermove", e => {
-  if (!active || !lastVector) return;
-
-  const c = center();
-  const currentVector = {
-    x: e.clientX - c.x,
-    y: e.clientY - c.y
-  };
-
-  const len = Math.hypot(lastVector.x, lastVector.y);
-  if (!len) return;
-
-  const radial = {
-    x: lastVector.x / len,
-    y: lastVector.y / len
-  };
-
-  const tangent = {
-    x: -radial.y,
-    y: radial.x
-  };
-
-  const dx = currentVector.x - lastVector.x;
-  const dy = currentVector.y - lastVector.y;
-
-  radius += (dx * radial.x + dy * radial.y) * 0.8;
-  rotation += (dx * tangent.x + dy * tangent.y) * 0.005;
-
-  radius = Math.max(MIN_RADIUS, Math.min(MAX_RADIUS, radius));
-
-  lastVector = currentVector;
-  layout();
-});
-
-document.addEventListener("pointerup", () => {
-  if (!active) return;
-  active.classList.remove("dragging");
-  active = null;
-  lastVector = null;
-});
-
-/* ===== RESIZE / LOAD ===== */
-window.addEventListener("resize", () => {
-  updateRadius();
-  layout();
-});
-
-window.addEventListener("load", layout);
-</script>
+    window.addEventListener("pointerup", () => startY = null);
+  </script>
 
 </body>
 </html>
