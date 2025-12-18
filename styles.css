@@ -24,7 +24,7 @@ body {
 .sphere-system {
   position: relative;
   width: 100%;
-  height: 100svh; /* iOS-safe viewport */
+  height: 100svh;
 }
 
 /* ===== CENTER SPHERE ===== */
@@ -41,6 +41,9 @@ body {
   padding: 55px;
   text-align: center;
   z-index: 2;
+
+  /* 🚨 allow touches to pass through */
+  pointer-events: none;
 }
 
 .center-sphere h1 {
@@ -76,6 +79,7 @@ body {
   font-size: clamp(0.75rem, 3vw, 0.95rem);
   cursor: grab;
   user-select: none;
+  z-index: 5;
 
   /* REQUIRED FOR MOBILE DRAG */
   touch-action: none;
@@ -86,5 +90,4 @@ body {
 .orbit.dragging {
   cursor: grabbing;
   transition: none;
-  z-index: 3;
 }
