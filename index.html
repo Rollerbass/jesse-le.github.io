@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Jesse-Le Edwards</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<section class="hero">
+  <div class="sphere-system" id="system">
+
+    <div class="center-sphere">
+      <h1>Jesse-Le<br>Edwards</h1>
+      <p class="subtitle">IT • Customer Support • Systems • Creative Technologist</p>
+      <p class="intro">
+        I help people work better with technology.<br>
+        Calm problem-solver. Curious builder.<br>
+        Human-centered thinker.
+      </p>
+    </div>
+
+    <a class="orbit">About</a>
+    <a class="orbit">Projects</a>
+    <a class="orbit">GitHub</a>
+    <a class="orbit">LinkedIn</a>
+    <a class="orbit">Email</a>
+    <a class="orbit">Demo</a>
+
+  </div>
+</section>
+
+<script>
+const system = document.getElementById("system");
+const orbits = [...document.querySelectorAll(".orbit")];
+
+const COUNT = orbits.length;
+const STEP = (Math.PI * 2) / COUNT;
+
+let radius = 300;
+let rotation = 0;
+
+const MIN_RADIUS = 230;
+const MAX_RADIUS = 420;
+
+let active = null;
+let lastVector = null;
+
+function center() {
+  return {
+    x: system.offsetWidth / 2,
+    y: system.offsetHeight / 2
+  };
+}
+
+function layout() {
+  const c = center();
+  orbits.forEach((orbit, i) => {
+    const angle = i * STEP + rotation;
+    const x = c.x + Math.cos(angle) * radius - orbit.offsetWidth / 2;
+    const y = c.y + Math.sin(angle) * radius - orbit.offsetHeight / 2;
+    orbit.style.transform = `translate(${x}px, ${y}px)`;
+  });
+}
+
+orbits.forEach(orbit => {
+  orbit.addEventListener("mousedown", e => {
+    active = orbit;
+    orbit.classList.add("dragging");
+
+    const c = center();
+    lastVector = {
+      x: e.clientX - c.x,
+      y: e.clientY - c.y
+    };
+  });
+});
+
+document.addEventListener("mousemove", e => {
+  if (!active) return;
+
+  const c = center();
+  const currentVector = {
+    x: e.clientX - c.x,
+    y: e.clientY - c.y
+  };
+
+  // Normalize radial vector
+  const len = Math.hypot(lastVector.x, lastVector.y);
+  const radial = {
+    x: lastVector.x / len,
+    y: lastVector.y / len
+  };
+
+  // Tangential vector (90° rotation)
+  const tangent = {
+    x: -radial.y,
+    y: radial.x
+  };
+
+  // Delta movement
+  const dx = currentVector.x - lastVector.x;
+  const dy = currentVector.y - lastVector.y;
+
+  // Project movement
+  const radialDelta = dx * radial.x + dy * radial.y;
+  const tangentialDelta = dx * tangent.x + dy * tangent.y;
+
+  // Apply changes
+  radius += radialDelta * 0.8;
+  rotation += tangentialDelta * 0.005;
+
+  radius = Math.max(MIN_RADIUS, Math.min(MAX_RADIUS, radius));
+
+  lastVector = currentVector;
+  layout();
+});
+
+document.addEventListener("mouseup", () => {
+  if (!active) return;
+  active.classList.remove("dragging");
+  active = null;
+});
+
+window.addEventListener("resize", layout);
+window.addEventListener("load", layout);
+</script>
+
+</body>
+</html>
