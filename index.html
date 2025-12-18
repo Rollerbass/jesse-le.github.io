@@ -46,13 +46,20 @@ let lastVector = null;
 
 let radius, MIN_RADIUS, MAX_RADIUS;
 
-/* ===== RESPONSIVE RADIUS ===== */
+/* ===== RESPONSIVE + SAFE RADIUS ===== */
 function getResponsiveRadius() {
   const minDim = Math.min(window.innerWidth, window.innerHeight);
+
+  // Match CSS clamps
+  const centerSize = Math.min(Math.max(minDim * 0.7, 260), 380);
+  const orbitSize  = Math.min(Math.max(minDim * 0.18, 64), 96);
+
+  const base = centerSize / 2 + orbitSize / 2 + 24;
+
   return {
-    radius: minDim * 0.38,
-    min: minDim * 0.28,
-    max: minDim * 0.48
+    radius: base + 40,
+    min: base + 10,
+    max: base + minDim * 0.15
   };
 }
 
@@ -65,7 +72,7 @@ function updateRadius() {
 
 updateRadius();
 
-/* ===== CENTER ===== */
+/* ===== CENTER POINT ===== */
 function center() {
   return {
     x: system.offsetWidth / 2,
@@ -84,7 +91,7 @@ function layout() {
   });
 }
 
-/* ===== POINTER EVENTS (DESKTOP + MOBILE) ===== */
+/* ===== POINTER EVENTS ===== */
 orbits.forEach(orbit => {
   orbit.addEventListener("pointerdown", e => {
     active = orbit;
