@@ -40,15 +40,32 @@ const orbits = [...document.querySelectorAll(".orbit")];
 const COUNT = orbits.length;
 const STEP = (Math.PI * 2) / COUNT;
 
-let radius = 300;
 let rotation = 0;
-
-const MIN_RADIUS = 230;
-const MAX_RADIUS = 420;
-
 let active = null;
 let lastVector = null;
 
+let radius, MIN_RADIUS, MAX_RADIUS;
+
+/* ===== RESPONSIVE RADIUS ===== */
+function getResponsiveRadius() {
+  const minDim = Math.min(window.innerWidth, window.innerHeight);
+  return {
+    radius: minDim * 0.38,
+    min: minDim * 0.28,
+    max: minDim * 0.48
+  };
+}
+
+function updateRadius() {
+  const r = getResponsiveRadius();
+  radius = r.radius;
+  MIN_RADIUS = r.min;
+  MAX_RADIUS = r.max;
+}
+
+updateRadius();
+
+/* ===== CENTER ===== */
 function center() {
   return {
     x: system.offsetWidth / 2,
@@ -56,6 +73,7 @@ function center() {
   };
 }
 
+/* ===== LAYOUT ===== */
 function layout() {
   const c = center();
   orbits.forEach((orbit, i) => {
@@ -67,7 +85,6 @@ function layout() {
 }
 
 /* ===== POINTER EVENTS (DESKTOP + MOBILE) ===== */
-
 orbits.forEach(orbit => {
   orbit.addEventListener("pointerdown", e => {
     active = orbit;
@@ -92,7 +109,7 @@ document.addEventListener("pointermove", e => {
   };
 
   const len = Math.hypot(lastVector.x, lastVector.y);
-  if (len === 0) return;
+  if (!len) return;
 
   const radial = {
     x: lastVector.x / len,
@@ -107,11 +124,8 @@ document.addEventListener("pointermove", e => {
   const dx = currentVector.x - lastVector.x;
   const dy = currentVector.y - lastVector.y;
 
-  const radialDelta = dx * radial.x + dy * radial.y;
-  const tangentialDelta = dx * tangent.x + dy * tangent.y;
-
-  radius += radialDelta * 0.8;
-  rotation += tangentialDelta * 0.005;
+  radius += (dx * radial.x + dy * radial.y) * 0.8;
+  rotation += (dx * tangent.x + dy * tangent.y) * 0.005;
 
   radius = Math.max(MIN_RADIUS, Math.min(MAX_RADIUS, radius));
 
@@ -126,7 +140,12 @@ document.addEventListener("pointerup", () => {
   lastVector = null;
 });
 
-window.addEventListener("resize", layout);
+/* ===== RESIZE / LOAD ===== */
+window.addEventListener("resize", () => {
+  updateRadius();
+  layout();
+});
+
 window.addEventListener("load", layout);
 </script>
 
