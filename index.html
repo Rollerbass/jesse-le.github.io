@@ -2,77 +2,224 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Jesse-Le</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jesse-Le Edwards</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-  <div class="system" id="system">
+<section class="hero">
+  <div class="sphere-system" id="system">
 
-    <!-- Center Sphere -->
-    <div class="center-sphere">
-      <h1>Jesse-Le</h1>
-      <p>Interactive Portfolio</p>
+    <!-- CENTER -->
+    <div class="center-sphere elongated" id="center">
+      <div class="center-content" id="centerContent"></div>
     </div>
 
-    <!-- Orbiting Circles -->
-    <div class="orbit" data-angle="0">Home</div>
-    <div class="orbit" data-angle="90">Projects</div>
-    <div class="orbit" data-angle="180">Resume</div>
-    <div class="orbit" data-angle="270">Contact</div>
+    <!-- ORBITS -->
+    <button class="orbit" data-page="home">Home</button>
+    <button class="orbit" data-page="about">About</button>
+    <button class="orbit" data-page="projects">Projects</button>
+    <button class="orbit" data-page="videos">Videos</button>
+    <button class="orbit" data-page="github">GitHub</button>
+    <button class="orbit" data-page="linkedin">LinkedIn</button>
+    <button class="orbit" data-page="email">Email</button>
 
   </div>
+</section>
 
-  <script>
-    const system = document.getElementById("system");
-    const orbits = document.querySelectorAll(".orbit");
+<script>
+/* ===============================
+   SETUP
+================================ */
+const system = document.getElementById("system");
+const centerEl = document.getElementById("center");
+const centerContent = document.getElementById("centerContent");
+const orbits = [...document.querySelectorAll(".orbit")];
 
-    let radius = 260;
+const COUNT = orbits.length;
+const STEP = (Math.PI * 2) / COUNT;
 
-    function minRadius() {
-      const center = document.querySelector(".center-sphere");
-      return center.offsetWidth / 2 + 14;
-    }
+let radius = 300;
+let rotation = 0;
+let active = null;
+let lastVector = null;
 
-    function maxRadius() {
-      return Math.min(system.offsetWidth, system.offsetHeight) / 2 - 30;
-    }
+/* ===============================
+   CENTER POINT
+================================ */
+function centerPoint() {
+  return {
+    x: system.offsetWidth / 2,
+    y: system.offsetHeight / 2
+  };
+}
 
-    function positionOrbits() {
-      orbits.forEach(orbit => {
-        const angle = parseFloat(orbit.dataset.angle) * Math.PI / 180;
-        const x = Math.cos(angle) * radius;
-        const y = Math.sin(angle) * radius;
+/* ===============================
+   ORBIT LAYOUT
+================================ */
+function layout() {
+  const c = centerPoint();
+  orbits.forEach((orbit, i) => {
+    const angle = i * STEP + rotation;
+    const x = c.x + Math.cos(angle) * radius - orbit.offsetWidth / 2;
+    const y = c.y + Math.sin(angle) * radius - orbit.offsetHeight / 2;
+    orbit.style.transform = `translate(${x}px, ${y}px)`;
+  });
+}
 
-        orbit.style.transform = `translate(${x}px, ${y}px)`;
-      });
-    }
+/* ===============================
+   DRAG PHYSICS
+================================ */
+orbits.forEach(orbit => {
+  orbit.addEventListener("pointerdown", e => {
+    active = orbit;
+    orbit.setPointerCapture(e.pointerId);
 
-    positionOrbits();
-    window.addEventListener("resize", positionOrbits);
+    const c = centerPoint();
+    lastVector = {
+      x: e.clientX - c.x,
+      y: e.clientY - c.y
+    };
+  });
 
-    /* Drag to zoom orbit */
-    let startY = null;
+  orbit.addEventListener("click", e => {
+    e.stopPropagation();
+    openPage(orbit.dataset.page);
+  });
+});
 
-    system.addEventListener("pointerdown", e => {
-      startY = e.clientY;
-    });
+document.addEventListener("pointermove", e => {
+  if (!active || !lastVector) return;
 
-    system.addEventListener("pointermove", e => {
-      if (startY === null) return;
+  const c = centerPoint();
+  const currentVector = {
+    x: e.clientX - c.x,
+    y: e.clientY - c.y
+  };
 
-      const delta = startY - e.clientY;
-      radius += delta * 0.6;
+  const len = Math.hypot(lastVector.x, lastVector.y);
+  if (!len) return;
 
-      radius = Math.max(minRadius(), Math.min(maxRadius(), radius));
-      startY = e.clientY;
+  const radial = {
+    x: lastVector.x / len,
+    y: lastVector.y / len
+  };
 
-      positionOrbits();
-    });
+  const tangent = {
+    x: -radial.y,
+    y: radial.x
+  };
 
-    window.addEventListener("pointerup", () => startY = null);
-  </script>
+  const dx = currentVector.x - lastVector.x;
+  const dy = currentVector.y - lastVector.y;
+
+  radius += (dx * radial.x + dy * radial.y) * 0.8;
+  rotation += (dx * tangent.x + dy * tangent.y) * 0.005;
+
+  radius = Math.max(200, Math.min(520, radius));
+
+  lastVector = currentVector;
+  layout();
+});
+
+document.addEventListener("pointerup", () => {
+  active = null;
+  lastVector = null;
+});
+
+/* ===============================
+   CONTENT
+================================ */
+const pages = {
+  home: `
+    <h1>Jesse-Le<br>Edwards</h1>
+    <p class="subtitle">IT • Customer Support • Systems • Creative Technologist</p>
+    <p class="intro">
+      I help people work better with technology.<br>
+      Calm problem-solver. Curious builder.<br>
+      Human-centered thinker.
+    </p>
+  `,
+  about: `
+    <h1>About Me</h1>
+    <p class="intro">
+      IT professional with 7+ years of experience in customer support,
+      hardware, systems, and creative technology.
+    </p>
+  `,
+  projects: `
+    <h1>Projects</h1>
+    <p class="intro">
+      JavaScript Tetris<br>
+      IdolSphere<br>
+      MapaSphere
+    </p>
+  `,
+  videos: `
+    <h1>Videos</h1>
+    <p class="intro">
+      Demos and walkthroughs coming soon.
+    </p>
+  `,
+  github: `
+    <h1>GitHub</h1>
+    <p class="intro">
+      <a href="https://github.com/YOUR_GITHUB" target="_blank">github.com</a>
+    </p>
+  `,
+  linkedin: `
+    <h1>LinkedIn</h1>
+    <p class="intro">
+      <a href="https://linkedin.com/in/YOUR_LINKEDIN" target="_blank">linkedin.com</a>
+    </p>
+  `,
+  email: `
+    <h1>Email</h1>
+    <p class="intro">
+      <a href="mailto:you@email.com">you@email.com</a>
+    </p>
+  `
+};
+
+/* ===============================
+   PAGE SWITCH (FIXED)
+================================ */
+function openPage(page) {
+  centerContent.innerHTML = pages[page] || pages.home;
+
+  // Home now behaves EXACTLY like all other pages
+  resizeCenter();
+}
+
+/* ===============================
+   CENTER RESIZE (SINGLE SOURCE OF TRUTH)
+================================ */
+function resizeCenter() {
+  const contentHeight = centerContent.scrollHeight;
+  const minHeight = 420;
+  const maxHeight = window.innerHeight * 0.85;
+
+  const newHeight = Math.min(
+    Math.max(contentHeight + 120, minHeight),
+    maxHeight
+  );
+
+  centerEl.style.height = `${newHeight}px`;
+}
+
+/* ===============================
+   INIT
+================================ */
+openPage("home");
+
+window.addEventListener("resize", () => {
+  layout();
+  resizeCenter();
+});
+
+window.addEventListener("load", layout);
+</script>
 
 </body>
 </html>
